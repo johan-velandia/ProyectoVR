@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!--
+======================================================
+ARCHIVO: nivel1.html
+UBICACION: play-reorganizado/
+VERSION: 1.0 - Nivel 1 modularizado
+ULTIMA ACTUALIZACION: 2026-04-25 15:57
+
+PROPOSITO:
+Nivel 1 del videojuego SENATIC, separado del portal principal para
+mantener una entrada clara y una progresion por niveles.
+
+======================================================
+REGLAS PARA PRODUCCION:
+---
+- Esta cabecera documenta cambios internos del proyecto
+- Mantener el historial actualizado con fecha y hora
+
+======================================================
+HISTORIAL DE CAMBIOS:
+---
+[1.0] - 2026-04-25 15:57
+- Se extrae el nivel 1 desde index.html para dejar index como portal principal.
+
+
+======================================================
+-->
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <link href="img/teclado-espac3b1ol-numeros.jpg" rel="icon">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>JUEGO SENATIC - NIVEL 1</title>
+
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+
+    <script src="https://rawgit.com/mayognaise/aframe-gif-shader/master/dist/aframe-gif-shader.min.js"></script>
+    <link rel="stylesheet" href="css/nivel1.css">
+    <script src="js/nivel1.js"></script>
+</head>
+
+<body>
+
+    <!-- ======================================================
+    BLOQUE 1: CONTROLES MOVILES
+    Botones tactiles que alimentan las mismas teclas usadas en teclado.
+    ====================================================== -->
+    <div class="controles-movil">
+
+        <div class="d-pad">
+
+            <div></div><div id="m-up" class="d-btn">▲</div><div></div>
+
+            <div id="m-left" class="d-btn">◀</div><div id="m-down" class="d-btn">▼</div><div id="m-right" class="d-btn">▶</div>
+
+        </div>
+
+        <div id="m-jump" class="btn-salto">SALTO</div>
+
+    </div>
+
+    <!-- ======================================================
+    BLOQUE 2: PANTALLA DE REGISTRO DEL NIVEL 1
+    Captura el identificador del piloto antes de iniciar el nivel 1.
+    ====================================================== -->
+    <div id="pantalla-registro" class="overlay">
+
+        <div class="terminal-box">
+
+            <h1 class="portal-title">SYSTEC CORE</h1>
+
+            <input type="text" id="input-nombre" placeholder="ID DEL PILOTO" maxlength="12" autocomplete="off">
+
+            <br>
+
+            <button class="btn-systec" onclick="iniciarMision()">ESTABLECER ENLACE</button>
+
+            <br>
+
+            <button class="btn-volver-portal" onclick="irAlIndex()">
+
+                ⬅ VOLVER AL PORTAL SYSTEC
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ======================================================
+    BLOQUE 3: HUD DEL JUEGO
+    Informacion visible durante la partida: piloto, puntos y vidas.
+    ====================================================== -->
+    <div id="ui-top">
+
+        ID: <span id="user-display">---</span><br>
+
+        PTS: <span id="puntos-val">0</span><br>
+
+        <div id="vidas-val">❤️❤️❤️</div>
+
+    </div>
+
+    <!-- ======================================================
+    BLOQUE 4: PANTALLA DE RESULTADO
+    Se muestra cuando el jugador gana o pierde la mision.
+    ====================================================== -->
+    <div id="game-over-screen" class="overlay">
+
+    <div class="terminal-box">
+
+        <h1 id="final-title">TERMINADO</h1>
+
+        <p id="final-score"></p>
+
+        <button class="btn-systec" onclick="location.reload()">REINTENTAR MISIÓN</button>
+
+    </div>
+
+</div>
+
+    <!-- ======================================================
+    BLOQUE 5: ESCENA 3D A-FRAME
+    Contiene assets, ambiente, plataformas, meta, jugador y camara.
+    ====================================================== -->
+    <a-scene physics="gravity: -18; friction: 0.01;">
+
+     <!-- Assets reutilizados por la escena 3D. -->
+     <a-assets>
+
+    <img id="textura-cielo" src="img/sala.jpg">
+
+    
+
+    
+
+   
+
+    <audio id="musica-fondo" src="video/video.mp3" preload="auto"></audio>
+
+</a-assets>
+
+<!-- ======================================================
+BLOQUE 6: ELEMENTOS AMBIENTALES
+Fondo, estrellas, sonido y objeto decorativo con colision.
+====================================================== -->
+<!-- Definimos una caja de colision para que el muneco no la traspase. -->
+<a-entity obj-model="obj: #modelo-mar; mtl: #material-mar" 
+
+          position="0 5 -10" 
+
+          scale="0.5 0.5 0.5"
+
+          rotation="-90 0 0"
+          static-body="shape: box; width: 2; height: 5; depth: 1"
+
+          animation="property: rotation; to: -90 360 0; dur: 10000; loop: true; easing: linear"> 
+
+</a-entity>
+
+        <a-sphere id="sky-dome" radius="150" material="src: #textura-cielo; shader: flat; side: back" rotation="0 -90 0"></a-sphere>
+
+        <a-stars radius="120" count="8000" color="#00ffcc"></a-stars>
+
+<a-sound id="audio-fondo" src="#musica-fondo" loop="true" volume="0.20"></a-sound>
+
+        <!-- ======================================================
+        BLOQUE 7: PLATAFORMAS Y RUTA DEL NIVEL
+        Superficies que definen la trayectoria jugable hasta la meta.
+        ====================================================== -->
+        <a-box class="suelo" static-body position="0 0 0" width="8" height="0.3" depth="8" color="#222"></a-box>
+
+        <a-box class="suelo" static-body position="0 4 -12" width="5" height="0.4" depth="5" color="#333"></a-box>
+
+        <a-box class="suelo" static-body position="-9 7 -18" width="5" height="0.4" depth="5" color="#333"></a-box>
+
+        <a-box class="suelo" static-body position="0 10 -28" width="6" height="0.3" depth="15" color="#444"></a-box>
+
+       
+
+        <a-text value="IZQ: AGILIDAD | DER: PRECISION" position="0 16 -38" align="center" color="#00ffcc" scale="3 3 3"></a-text>
+
+         <a-box class="suelo" static-body position="0 10 -40" width="4" height="0.3" depth="4" color="#222"></a-box>
+
+        <a-box class="suelo" static-body position="-12 14 -45" width="4" height="0.4" depth="4" color="#4b0082"></a-box>
+
+        <a-box class="suelo" static-body position="-20 17 -52" width="3" height="0.4" depth="3" color="#4b0082"></a-box>
+
+        <a-box class="suelo" static-body position="-12 20 -60" width="3" height="0.4" depth="3" color="#4b0082"></a-box>
+
+        
+
+        <a-box class="suelo" static-body position="12 14 -45" width="4" height="0.4" depth="4" color="#00008b"></a-box>
+
+        <a-box class="suelo" static-body position="20 17 -52" width="2" height="3" depth="2" color="#00008b"></a-box>
+
+        <a-box class="suelo" static-body position="12 20 -60" width="3" height="0.4" depth="3" color="#00008b"></a-box>
+
+        <a-box class="suelo" static-body position="0 23 -72" width="10" height="0.3" depth="10" color="#666"></a-box>
+
+        
+
+        <!-- ======================================================
+        BLOQUE 8: META DEL NIVEL
+        Al colisionar con esta entidad se completa la mision.
+        ====================================================== -->
+        <a-entity id="meta" static-body position="0 26 -90">
+
+            <a-box width="18" height="0.5" depth="18" color="#00ffff" material="emissive: #00ffff; emissiveIntensity: 2"></a-box>
+
+            <a-text value="CORE ALCANZADO" align="center" position="0 5 0" scale="12 12 12"></a-text>
+
+            <a-light type="point" intensity="3" color="#00ffff" position="0 6 0"></a-light>
+
+        </a-entity>
+
+        <!-- ======================================================
+        BLOQUE 9: JUGADOR
+        Avatar controlado por teclado o controles moviles.
+        ====================================================== -->
+        <a-entity id="jugador" position="0 3 0" scale="1.5 1.5 1.5" motor-gameplay dynamic-body="mass: 2; fixedRotation: true">
+
+            <!-- Cabeza: piel blanca -->
+            <a-cylinder position="0 1.2 0" radius="0.22" height="0.38" color="#f5f0eb">
+
+                <!-- Ojos negros -->
+                <a-sphere position="-0.1 0.1 -0.21" radius="0.03" color="black"></a-sphere>
+
+                <a-sphere position="0.1 0.1 -0.21" radius="0.03" color="black"></a-sphere>
+
+                <!-- Sombrero negro (ala) -->
+                <a-cylinder position="0 0.28 0" radius="0.28" height="0.04" color="#111111"></a-cylinder>
+
+                <!-- Sombrero negro (copa) -->
+                <a-cylinder position="0 0.38 0" radius="0.20" height="0.22" color="#111111"></a-cylinder>
+
+            </a-cylinder>
+
+            <!-- Cuerpo: traje negro con camisa blanca y corbata negra -->
+            <a-box position="0 0.6 0" width="0.7" height="0.75" depth="0.45" color="#111111">
+
+                <!-- Camisa blanca interior -->
+                <a-box position="0 0.05 -0.02" width="0.22" height="0.65" depth="0.46" color="#ffffff"></a-box>
+
+                <!-- Corbata negra -->
+                <a-box position="0 0.05 -0.03" width="0.07" height="0.5" depth="0.46" color="#222222"></a-box>
+
+            </a-box>
+
+            <!-- Brazos: mangas negras con manos blancas -->
+            <a-box position="-0.5 0.6 0" width="0.28" height="0.7" depth="0.28" color="#111111" animation="property: rotation; from: -20 0 0; to: 20 0 0; dur: 800; dir: alternate; loop: true">
+                <a-box position="0 -0.42 0" width="0.28" height="0.18" depth="0.28" color="#f5f0eb"></a-box>
+            </a-box>
+
+            <a-box position="0.5 0.6 0" width="0.28" height="0.7" depth="0.28" color="#111111" animation="property: rotation; from: 20 0 0; to: -20 0 0; dur: 800; dir: alternate; loop: true">
+                <a-box position="0 -0.42 0" width="0.28" height="0.18" depth="0.28" color="#f5f0eb"></a-box>
+            </a-box>
+
+            <!-- Piernas: pantalón negro -->
+            <a-box position="-0.2 -0.1 0" width="0.32" height="0.65" depth="0.32" color="#111111"></a-box>
+
+            <a-box position="0.2 -0.1 0" width="0.32" height="0.65" depth="0.32" color="#111111"></a-box>
+
+        </a-entity>
+
+        <!-- ======================================================
+        BLOQUE 10: CAMARA Y LUCES
+        La camara sigue al jugador y la luz ambiente permite ver la escena.
+        ====================================================== -->
+        <a-entity id="rig-camara" seguimiento-camara>
+
+            <a-camera position="0 7 14" look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+
+        </a-entity>
+
+        <a-light type="ambient" intensity="0.4"></a-light>
+
+    </a-scene>
+
+</body>
+
+</html>
